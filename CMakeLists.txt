@@ -13,4 +13,4 @@ add_subdirectory(include/glad)
 # GLM
 add_subdirectory(include/glm)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad glm)
