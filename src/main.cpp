@@ -3,17 +3,33 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <vector>
-#include "shader.hpp"
+
+#include "Shader.hpp"
+#include "VAO.hpp"
+#include "VBO.hpp"
+#include "EBO.hpp"
 
 int main() {
   const int WINDOW_WIDTH = 800;
   const int WINDOW_HEIGHT = 600;
 
   // Triangle vertices (position, color)
-  GLfloat vertices[] = {
+  GLfloat triangle[] = {
     -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f,
      0.5f, -0.5f, 0.0f, 0.5f, 0.2f, 0.0f,
      0.0f,  0.5f, 0.0f, 0.5f, 0.8f, 0.0f
+  };
+
+  GLfloat square[] = {
+    -0.2f, -0.2f, 0.0f, 0.2f, 0.2f, 0.0f,
+     0.2f, -0.2f, 0.0f, 0.2f, 0.2f, 0.0f,
+     0.2f,  0.2f, 0.0f, 0.2f, 0.8f, 0.0f,
+    -0.2f,  0.2f, 0.0f, 0.2f, 0.2f, 0.0f
+  };
+
+  GLuint indices[] = {
+    0, 1, 2,
+    2, 3, 0
   };
 
   // Glfw initialization
@@ -49,24 +65,27 @@ int main() {
   // Shader initialization
   Shader shader("../shaders/vertex.vs", "../shaders/fragment.fs");
 
-  // Vertex array and buffer initialization
-  GLuint VAO, VBO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
+  VAO VAO1;
+  VAO1.Bind();
 
-  glBindVertexArray(VAO);
+  VBO VBO1(triangle, sizeof(triangle));
+  VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)0);
+  VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  VAO1.Unbind();
+  VBO1.Unbind();
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-  glEnableVertexAttribArray(0);
+  VAO VAO2;
+  VAO2.Bind();
 
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(1);
+  VBO VBO2(square, sizeof(square));
+  EBO EBO1(indices, sizeof(indices));
+  VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)0);
+  VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+  VAO1.Unbind();
+  VBO2.Unbind();
+  EBO1.Unbind();
 
   // Main loop
   do {
@@ -74,8 +93,12 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     shader.Use();
-    glBindVertexArray(VAO);
+
+    VAO1.Bind();
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    VAO2.Bind();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
 
@@ -83,8 +106,11 @@ int main() {
   } while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE));
 
   // Cleanup
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
+  VAO1.Delete();
+  VBO1.Delete();
+  VAO2.Delete();
+  VBO2.Delete();
+  EBO1.Delete();
   shader.Delete();
   glfwDestroyWindow(window);
   glfwTerminate();

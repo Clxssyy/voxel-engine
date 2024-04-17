@@ -1,5 +1,5 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef SHADER_HPP
+#define SHADER_HPP
 
 #include <glad/glad.h>
 
@@ -10,15 +10,14 @@
 
 std::string ReadFile(const char* filePath);
 
-class Shader
-{
+class Shader {
 public:
     GLuint ID;
 
     Shader(const char* vertexPath, const char* fragmentPath);
 
     void Use();
-
     void Delete();
 };
+
 #endif
