@@ -17,6 +17,10 @@
 const GLint WINDOW_WIDTH = 800;
 const GLint WINDOW_HEIGHT = 600;
 
+// Time
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 // Cube vertices (position, color)
 GLfloat cube[] = {
   // Front face
@@ -119,9 +123,13 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     shader.Use();
 
-    camera.Inputs(window);
+    camera.Inputs(window, deltaTime);
     camera.UpdateMatrix(45.0f, 0.1f, 100.0f, "camMatrix", shader);
 
     VAO1.Bind();

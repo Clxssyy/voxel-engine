@@ -11,24 +11,24 @@ Camera::Camera(glm::vec3 positionN, int windowWidth, int windowHeight) {
     Camera::sensitivity = 100.0f;
 }
 
-void Camera::Inputs(GLFWwindow* window) {
+void Camera::Inputs(GLFWwindow* window, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        position += speed * orientation;
+        position += speed * orientation * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        position -= speed * orientation;
+        position -= speed * orientation * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        position -= glm::normalize(glm::cross(orientation, up)) * speed;
+        position -= glm::normalize(glm::cross(orientation, up)) * speed * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        position += glm::normalize(glm::cross(orientation, up)) * speed;
+        position += glm::normalize(glm::cross(orientation, up)) * speed * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        position += glm::normalize(up) * speed;
+        position += glm::normalize(up) * speed * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-        position -= glm::normalize(up) * speed;
+        position -= glm::normalize(up) * speed * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
         speed = 0.5f;
