@@ -53,6 +53,10 @@ GLuint cubeIndices[] = {
   6, 2, 1
 };
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+  glViewport(0, 0, width, height);
+}
+
 int main() {
   // Glfw initialization
   if (!glfwInit()) {
@@ -73,6 +77,7 @@ int main() {
   }
 
   glfwMakeContextCurrent(window);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   // Glad initialization
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
