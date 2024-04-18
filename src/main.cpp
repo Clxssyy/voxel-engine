@@ -13,8 +13,9 @@
 #include "EBO.hpp"
 #include "Camera.hpp"
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 800;
+// Window dimensions
+const GLint WINDOW_WIDTH = 800;
+const GLint WINDOW_HEIGHT = 600;
 
 // Cube vertices (position, color)
 GLfloat cube[] = {
@@ -81,8 +82,11 @@ int main() {
     return 1;
   }
 
-  // Multipled by 2 for MacOS
-  glViewport(0, 0, WINDOW_WIDTH * 2, WINDOW_HEIGHT * 2);
+  #ifdef _WIN32
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+  #elif __APPLE__
+    glViewport(0, 0, WINDOW_WIDTH * 2, WINDOW_HEIGHT * 2);
+  #endif
 
   // Shader initialization
   Shader shader("../shaders/vertex.vs", "../shaders/fragment.fs");

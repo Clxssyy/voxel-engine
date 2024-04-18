@@ -1,4 +1,4 @@
-#include "shader.hpp"
+#include "Shader.hpp"
 
 std::string ReadFile(const char* filePath) {
     std::ifstream in(filePath, std::ios::binary);
