@@ -5,9 +5,10 @@ layout (location = 1) in vec3 aColor;
 out vec3 color;
 
 uniform mat4 camMatrix;
+uniform float scale;
 
 void main()
 {
-    gl_Position = camMatrix * vec4(aPos, 1.0);
+    gl_Position = camMatrix * vec4(aPos * scale, 1.0);
     color = aColor;
 }       

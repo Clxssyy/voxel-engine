@@ -1,14 +1,15 @@
 #include "Camera.hpp"
 
-Camera::Camera(glm::vec3 positionN, int windowWidth, int windowHeight) {
+Camera::Camera(glm::vec3 positionN, int windowWidth, int windowHeight, float speed, float sensitivity) {
     Camera::position = positionN;
     Camera::windowWidth = windowWidth;
     Camera::windowHeight = windowHeight;
     Camera::orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     Camera::up = glm::vec3(0.0f, 1.0f, 0.0f);
     Camera::firstClick = true;
-    Camera::speed = 0.1f;
-    Camera::sensitivity = 100.0f;
+    Camera::speed = speed;
+    Camera::sensitivity = sensitivity;
+    Camera::maxSpeed = speed * 2;
 }
 
 void Camera::Inputs(GLFWwindow* window, float deltaTime) {
@@ -31,10 +32,10 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime) {
         position -= glm::normalize(up) * speed * deltaTime;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        speed = 0.5f;
+        if (speed < maxSpeed) speed = speed * 2;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        speed = 0.1f;
+        if (speed > maxSpeed / 2) speed = speed / 2;
     }
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {

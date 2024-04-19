@@ -26,11 +26,14 @@ public:
     float speed;
     float sensitivity;
 
-    Camera(glm::vec3 position, int windowWidth, int windowHeight);
+    Camera(glm::vec3 position, int windowWidth, int windowHeight, float speed, float sensitivity);
 
     void Inputs(GLFWwindow* window, float deltaTime);
 
     void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane, const char* uniform, Shader& shader);
+
+private:
+    float maxSpeed;
 };
 
 #endif

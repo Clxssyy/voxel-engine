@@ -17,9 +17,12 @@
 const GLint WINDOW_WIDTH = 800;
 const GLint WINDOW_HEIGHT = 600;
 
+// Scale
+const GLfloat scale = 0.5f;
+
 // Time
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
 
 // Cube vertices (position, color)
 GLfloat cube[] = {
@@ -115,19 +118,23 @@ int main() {
 
   glEnable(GL_DEPTH_TEST);
 
+  GLuint scaleLoc = glGetUniformLocation(shader.ID, "scale");
+
   // Camera creation
-  Camera camera(glm::vec3(0.0f, 0.0f, 2.0f), WINDOW_WIDTH, WINDOW_HEIGHT);
+  Camera camera(glm::vec3(0.0f, 0.0f, 2.0f), WINDOW_WIDTH, WINDOW_HEIGHT, 1.0f, 100.0f);
 
   // Main loop
   do {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float currentFrame = glfwGetTime();
+    GLfloat currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
     shader.Use();
+
+    glUniform1f(scaleLoc, scale);
 
     camera.Inputs(window, deltaTime);
     camera.UpdateMatrix(45.0f, 0.1f, 100.0f, "camMatrix", shader);
