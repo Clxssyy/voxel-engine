@@ -7,58 +7,18 @@
 #include <iostream>
 #include <vector>
 
-#include "Shader.hpp"
-#include "VAO.hpp"
-#include "VBO.hpp"
-#include "EBO.hpp"
-#include "Camera.hpp"
+#include "Voxel.hpp"
 
 // Window dimensions
 const GLint WINDOW_WIDTH = 800;
 const GLint WINDOW_HEIGHT = 600;
 
 // Scale
-const GLfloat scale = 0.5f;
+const GLfloat scale = 0.1f;
 
 // Time
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
-
-// Cube vertices (position, color)
-GLfloat cube[] = {
-  // Front face
-  -0.8f, -0.8f,  0.8f, 0.0f, 0.0f, 0.2f,
-    0.8f, -0.8f,  0.8f, 0.0f, 0.0f, 0.2f,
-    0.8f,  0.8f,  0.8f, 0.0f, 0.0f, 0.2f,
-  -0.8f,  0.8f,  0.8f, 0.0f, 0.0f, 0.2f,
-  // Back face
-  -0.8f, -0.8f, -0.8f, 0.0f, 0.0f, 0.5f,
-    0.8f, -0.8f, -0.8f, 0.0f, 0.0f, 0.5f,
-    0.8f,  0.8f, -0.8f, 0.0f, 0.0f, 0.5f,
-  -0.8f,  0.8f, -0.8f, 0.0f, 0.0f, 0.5f
-};
-
-// Cube indices
-GLuint cubeIndices[] = {
-  // Front face
-  0, 1, 2,
-  2, 3, 0,
-  // Top face
-  3, 2, 6,
-  6, 7, 3,
-  // Back face
-  7, 6, 5,
-  5, 4, 7,
-  // Bottom face
-  4, 5, 1,
-  1, 0, 4,
-  // Left face
-  4, 0, 3,
-  3, 7, 4,
-  // Right face
-  1, 5, 6,
-  6, 2, 1
-};
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
@@ -103,18 +63,14 @@ int main() {
   // Shader initialization
   Shader shader("../shaders/vertex.vs", "../shaders/fragment.fs");
 
-  // VAO, VBO, EBO initialization
-  VAO VAO1;
-  VAO1.Bind();
+  // Voxel
+  Voxel voxel(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-  VBO VBO1(cube, sizeof(cube));
-  EBO EBO1(cubeIndices, sizeof(cubeIndices));
-  VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)0);
-  VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+  Voxel voxel2(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-  VAO1.Unbind();
-  VBO1.Unbind();
-  EBO1.Unbind();
+  Voxel voxel3(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+  Voxel voxel4(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
   glEnable(GL_DEPTH_TEST);
 
@@ -137,10 +93,12 @@ int main() {
     glUniform1f(scaleLoc, scale);
 
     camera.Inputs(window, deltaTime);
-    camera.UpdateMatrix(45.0f, 0.1f, 100.0f, "camMatrix", shader);
+    camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
-    VAO1.Bind();
-    glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
+    voxel.Draw(shader, camera);
+    voxel2.Draw(shader, camera);
+    voxel3.Draw(shader, camera);
+    voxel4.Draw(shader, camera);
 
     glfwSwapBuffers(window);
 
@@ -148,9 +106,7 @@ int main() {
   } while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE));
 
   // Cleanup
-  VAO1.Delete();
-  VBO1.Delete();
-  EBO1.Delete();
+
   shader.Delete();
   glfwDestroyWindow(window);
   glfwTerminate();

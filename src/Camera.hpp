@@ -17,6 +17,7 @@ public:
     glm::vec3 position;
     glm::vec3 orientation;
     glm::vec3 up;
+    glm::mat4 camMatrix;
 
     int windowWidth;
     int windowHeight;
@@ -30,7 +31,9 @@ public:
 
     void Inputs(GLFWwindow* window, float deltaTime);
 
-    void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane, const char* uniform, Shader& shader);
+    void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
+
+    void Matrix(Shader& shader, const char* uniform);
 
 private:
     float maxSpeed;
