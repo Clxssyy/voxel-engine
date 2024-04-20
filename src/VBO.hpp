@@ -14,6 +14,7 @@ class VBO {
 public:
     GLuint ID;
 
+    VBO() = default;
     VBO(std::vector<Vertex>& vertices);
 
     void Bind();

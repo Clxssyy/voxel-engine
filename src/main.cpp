@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Voxel.hpp"
+#include "Chunk.hpp"
 
 // Window dimensions
 const GLint WINDOW_WIDTH = 800;
@@ -63,16 +63,77 @@ int main() {
   // Shader initialization
   Shader shader("../shaders/vertex.vs", "../shaders/fragment.fs");
 
-  // Voxel
-  Voxel voxel(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  // -- Voxel Example
+  // Voxel voxel(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-  Voxel voxel2(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  // -- Chunk Example
+  // Chunk chunk(glm::vec3(0.0f, 0.0f, 0.0f));
+  // chunk.Generate();
+  // chunk.Build();
 
-  Voxel voxel3(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+  // -- Multiple Chunks Example
+  std::vector<Chunk> chunks;
+  for (int x = 0; x < 4; x++)
+    for (int z = 0; z < 4; z++) {
+        Chunk chunk(glm::vec3(x, 0.0f, z));
+        chunks.push_back(chunk);
+      }
 
-  Voxel voxel4(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f));
+  for (auto &chunk : chunks) {
+    chunk.Generate();
+    chunk.Build();
+  }
+
+  // -- Cube Example using VAO, VBO, EBO
+  // std::vector<Vertex> vertices = {
+  //   // Position                           // Color
+  //   Vertex{glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(1.0f, 0.0f, 0.0f)}, // Front Bottom left
+  //   Vertex{glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.0f, 1.0f, 0.0f)},  // Front Bottom right
+  //   Vertex{glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)},   // Front Top right
+  //   Vertex{glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 0.0f)},  // Front Top left
+
+  //   Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f)}, // Back Bottom left
+  //   Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f)},  // Back Bottom right
+  //   Vertex{glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f)},   // Back Top right
+  //   Vertex{glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(1.0f, 1.0f, 0.0f)}   // Back Top left
+  // };
+
+  // std::vector<GLuint> indices = {
+  //   // Front
+  //   0, 1, 2,
+  //   0, 2, 3,
+  //   // Right
+  //   1, 5, 6,
+  //   1, 6, 2,
+  //   // Back
+  //   5, 4, 7,
+  //   5, 7, 6,
+  //   // Left
+  //   4, 0, 3,
+  //   4, 3, 7,
+  //   // Bottom
+  //   4, 5, 1,
+  //   4, 1, 0,
+  //   // Top
+  //   3, 2, 6,
+  //   3, 6, 7
+  // };
+
+  // shader.Use();
+
+  // VAO vao;
+  // vao.Bind();
+  // VBO vbo(vertices);
+  // EBO ebo(indices);
+
+  // vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+  // vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+  // vao.Unbind();
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
 
   GLuint scaleLoc = glGetUniformLocation(shader.ID, "scale");
 
@@ -84,21 +145,35 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Time
     GLfloat currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
     shader.Use();
 
+    // -- Cube Example
+    // camera.Matrix(shader, "camMatrix");
+
     glUniform1f(scaleLoc, scale);
 
     camera.Inputs(window, deltaTime);
     camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
-    voxel.Draw(shader, camera);
-    voxel2.Draw(shader, camera);
-    voxel3.Draw(shader, camera);
-    voxel4.Draw(shader, camera);
+    // -- Cube Render
+    // vao.Bind();
+    // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    // vao.Unbind();
+
+    // -- Voxel Render
+    // voxel.Draw(shader, camera);
+
+    // -- Chunk Render
+    // chunk.Draw(shader, camera);
+
+    // -- Multiple Chunks Render
+    for (auto &chunk : chunks)
+      chunk.Draw(shader, camera);
 
     glfwSwapBuffers(window);
 
@@ -106,7 +181,6 @@ int main() {
   } while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE));
 
   // Cleanup
-
   shader.Delete();
   glfwDestroyWindow(window);
   glfwTerminate();

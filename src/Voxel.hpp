@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <map>
 
 #include "VAO.hpp"
 #include "EBO.hpp"
@@ -14,22 +15,38 @@ public:
   glm::vec3 position;
   glm::vec3 color;
   VAO vao;
+  std::vector<Vertex> vertices;
+  std::map<std::string, std::vector<GLuint>> faces = {
+    {"front",{
+      0, 1, 2,
+      0, 2, 3
+    }},
+    {"back",{
+      5, 4, 7,
+      5, 7, 6
+    }},
+    {"right",{
+      1, 5, 6,
+      1, 6, 2
+    }},
+    {"left",{
+      4, 0, 3,
+      4, 3, 7
+    }},
+    {"top",{
+      3, 2, 6,
+      3, 6, 7
+    }},
+    {"bottom",{
+      4, 5, 1,
+      4, 1, 0
+    }}
+  };
 
+  Voxel() = default;
   Voxel(glm::vec3 position, glm::vec3 color);
 
   void Draw(Shader& shader, Camera& camera);
-
-private:
-  std::vector<Vertex> vertices;
-
-  std::vector<GLuint> indices = {
-    0, 1, 2, 2, 3, 0,
-    1, 5, 6, 6, 2, 1,
-    7, 6, 5, 5, 4, 7,
-    4, 0, 3, 3, 7, 4,
-    4, 5, 1, 1, 0, 4,
-    3, 2, 6, 6, 7, 3
-  };
 };
 
 #endif
