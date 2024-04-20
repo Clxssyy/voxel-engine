@@ -7,6 +7,9 @@
 #include <iostream>
 #include <vector>
 
+#include "imgui/imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include "Chunk.hpp"
 
 // Window dimensions
@@ -14,15 +17,37 @@ const GLint WINDOW_WIDTH = 800;
 const GLint WINDOW_HEIGHT = 600;
 
 // Scale
-const GLfloat scale = 0.1f;
+GLfloat scale = 0.1f;
+
+// Field of view
+GLfloat fov = 45.0f;
 
 // Time
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
+// Wireframe mode
+bool wireframe = false;
+
+// Menu mode
+bool menu = false;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
-}
+};
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  if (key == GLFW_KEY_F && action == GLFW_PRESS)
+    wireframe = !wireframe;
+  if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+    if (scale < 1.0f)
+    scale += 0.01f;
+  if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+    if (scale > 0.01f)
+    scale -= 0.01f;
+  if (key == GLFW_KEY_SLASH && action == GLFW_PRESS)
+    menu = !menu;
+};
 
 int main() {
   // Glfw initialization
@@ -45,6 +70,7 @@ int main() {
 
   glfwMakeContextCurrent(window);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetKeyCallback(window, key_callback);
 
   // Glad initialization
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -53,6 +79,17 @@ int main() {
     glfwTerminate();
     return 1;
   }
+
+  // ImGui initialization
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+  ImGui_ImplOpenGL3_Init();
 
   #ifdef _WIN32
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -100,6 +137,8 @@ int main() {
 
   // std::vector<GLuint> indices = {
   //   // Front
+  //   // Additional vertices to render lines
+  //   // 0, 1, 1, 2, 2, 0, 0, 3, 3, 2, 3,
   //   0, 1, 2,
   //   0, 2, 3,
   //   // Right
@@ -142,8 +181,24 @@ int main() {
 
   // Main loop
   do {
+    glfwPollEvents();
+
+    // Menu Creation
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    
+    ImGui::Begin("Use '/' to enter Menu Mode");
+    ImGui::SliderFloat("Scale (UP/DOWN)", &scale, 0.01f, 1.0f);
+    ImGui::SliderFloat("FOV", &fov, 45.0f, 110.0f);
+    if (ImGui::Button("Wireframe"))
+      wireframe = !wireframe;
+    ImGui::End();
+
+    // Rendering
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 
     // Time
     GLfloat currentFrame = glfwGetTime();
@@ -153,12 +208,16 @@ int main() {
     shader.Use();
 
     // -- Cube Example
-    // camera.Matrix(shader, "camMatrix");
+    camera.Matrix(shader, "camMatrix");
 
     glUniform1f(scaleLoc, scale);
 
-    camera.Inputs(window, deltaTime);
-    camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
+    // Input mode
+    if (!menu) {
+      camera.Inputs(window, deltaTime);
+    }
+
+    camera.UpdateMatrix(fov, 0.1f, 100.0f);
 
     // -- Cube Render
     // vao.Bind();
@@ -175,12 +234,16 @@ int main() {
     for (auto &chunk : chunks)
       chunk.Draw(shader, camera);
 
-    glfwSwapBuffers(window);
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    glfwPollEvents();
+    glfwSwapBuffers(window);
   } while (!glfwWindowShouldClose(window) && !glfwGetKey(window, GLFW_KEY_ESCAPE));
 
   // Cleanup
+  ImGui_ImplOpenGL3_Shutdown();
+ImGui_ImplGlfw_Shutdown();
+ImGui::DestroyContext();
   shader.Delete();
   glfwDestroyWindow(window);
   glfwTerminate();

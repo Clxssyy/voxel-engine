@@ -15,7 +15,8 @@ void Chunk::Generate() {
     for (int y = 0; y < HEIGHT; y++)
       for (int z = 0; z < SIZE; z++) {
           Voxel voxel(glm::vec3(x, y, z) + position, glm::vec3(1.0f, 1.0f, 1.0f) * glm::vec3(x, y, z) / glm::vec3(SIZE, HEIGHT, SIZE));
-          vertices.insert(vertices.end(), voxel.vertices.begin(), voxel.vertices.end());
+          for (const auto &vertex : voxel.vertices)
+            vertices.push_back(vertex);
           if (x == 0) {
             for (const auto &index : voxel.faces["left"])
               indices.push_back(index + vertices.size() - 8);
