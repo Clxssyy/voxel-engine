@@ -8,11 +8,6 @@
 struct Vertex {
     glm::vec3 Position;
     glm::vec3 Color;
-
-    Vertex(glm::vec3 position, glm::vec3 color) {
-        Position = position;
-        Color = color;
-    }
 };
 
 class VBO {

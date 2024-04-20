@@ -2,14 +2,14 @@
 
 Voxel::Voxel(glm::vec3 position, glm::vec3 color) : position(position), color(color) {
   vertices = {
-    Vertex(glm::vec3(0.5f, 0.5f, 0.5f) + position, color),
-    Vertex(glm::vec3(0.5f, -0.5f, 0.5f) + position, color),
-    Vertex(glm::vec3(-0.5f, -0.5f, 0.5f) + position, color),
-    Vertex(glm::vec3(-0.5f, 0.5f, 0.5f) + position, color),
-    Vertex(glm::vec3(0.5f, 0.5f, -0.5f) + position, color),
-    Vertex(glm::vec3(0.5f, -0.5f, -0.5f) + position, color),
-    Vertex(glm::vec3(-0.5f, -0.5f, -0.5f) + position, color),
-    Vertex(glm::vec3(-0.5f, 0.5f, -0.5f) + position, color)
+    Vertex{glm::vec3(0.5f, 0.5f, 0.5f) + position, color},
+    Vertex{glm::vec3(0.5f, -0.5f, 0.5f) + position, color},
+    Vertex{glm::vec3(-0.5f, -0.5f, 0.5f) + position, color},
+    Vertex{glm::vec3(-0.5f, 0.5f, 0.5f) + position, color},
+    Vertex{glm::vec3(0.5f, 0.5f, -0.5f) + position, color},
+    Vertex{glm::vec3(0.5f, -0.5f, -0.5f) + position, color},
+    Vertex{glm::vec3(-0.5f, -0.5f, -0.5f) + position, color},
+    Vertex{glm::vec3(-0.5f, 0.5f, -0.5f) + position, color}
   };
 
   vao.Bind();
