@@ -3,8 +3,8 @@
 
 #include "Voxel.hpp"
 
-const int SIZE = 16;
-const int HEIGHT = 64;
+const int SIZE = 8;
+const int HEIGHT = 8;
 
 class Chunk {
 public:
@@ -16,7 +16,9 @@ public:
   Chunk(glm::vec3 position);
   void Draw(Shader& shader, Camera& camera);
   void Generate();
+  void GenerateGreedy();
   void Build();
+  void Delete();
 
 private:
   std::vector<Vertex> vertices;

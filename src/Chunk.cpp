@@ -15,38 +15,39 @@ void Chunk::Generate() {
     for (int y = 0; y < HEIGHT; y++)
       for (int z = 0; z < SIZE; z++) {
           Voxel voxel(glm::vec3(x, y, z) + position, glm::vec3(1.0f, 1.0f, 1.0f) * glm::vec3(x, y, z) / glm::vec3(SIZE, HEIGHT, SIZE));
-          for (const auto &vertex : voxel.vertices)
-            vertices.push_back(vertex);
-          if (x == 0) {
+          if (x == 0 || x == SIZE - 1 || y == 0 || y == HEIGHT - 1 || z == 0 || z == SIZE - 1)
+            for (const auto &vertex : voxel.vertices)
+              vertices.push_back(vertex);
+          if (x == 0)
             for (const auto &index : voxel.faces["left"])
               indices.push_back(index + vertices.size() - 8);
-          }
-          if (x == SIZE - 1) {
+          if (x == SIZE - 1)
             for (const auto &index : voxel.faces["right"])
               indices.push_back(index + vertices.size() - 8);
-          }
-          if (y == 0) {
+          if (y == 0)
             for (const auto &index : voxel.faces["bottom"])
               indices.push_back(index + vertices.size() - 8);
-          }
-          if (y == HEIGHT - 1) {
+          if (y == HEIGHT - 1)
             for (const auto &index : voxel.faces["top"])
               indices.push_back(index + vertices.size() - 8);
-          }
-          if (z == 0) {
+          if (z == 0)
             for (const auto &index : voxel.faces["back"])
               indices.push_back(index + vertices.size() - 8);
-          }
-          if (z == SIZE - 1) {
+          if (z == SIZE - 1)
             for (const auto &index : voxel.faces["front"])
               indices.push_back(index + vertices.size() - 8);
-          }
+
+          voxel.Delete();
           // Render all faces
           // for (const auto &face : voxel.faces)
           //   for (const auto &index : face.second)
           //     indices.push_back(index + vertices.size() - 8);
       }
 };
+
+void Chunk::GenerateGreedy() {
+
+}
 
 void Chunk::Build() {
   vao.Bind();
@@ -60,4 +61,10 @@ void Chunk::Build() {
   vao.Unbind();
   vbo.Unbind();
   ebo.Unbind();
+};
+
+void Chunk::Delete() {
+  vao.Delete();
+  vbo.Delete();
+  ebo.Delete();
 };

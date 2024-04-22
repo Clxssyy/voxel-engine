@@ -47,6 +47,7 @@ public:
   Voxel(glm::vec3 position, glm::vec3 color);
 
   void Draw(Shader& shader, Camera& camera);
+  void Delete();
 };
 
 #endif

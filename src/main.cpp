@@ -110,16 +110,21 @@ int main() {
 
   // -- Multiple Chunks Example
   std::vector<Chunk> chunks;
-  for (int x = 0; x < 4; x++)
-    for (int z = 0; z < 4; z++) {
+  for (int x = -4; x < 4; x++) {
+    for (int z = -4; z < 4; z++) {
         Chunk chunk(glm::vec3(x, 0.0f, z));
         chunks.push_back(chunk);
+        z++;
       }
+    x++;
+  }
 
+  int time = glfwGetTime();
   for (auto &chunk : chunks) {
     chunk.Generate();
     chunk.Build();
   }
+  std::cout << "Time: " << glfwGetTime() - time << std::endl;
 
   // -- Cube Example using VAO, VBO, EBO
   // std::vector<Vertex> vertices = {
@@ -189,8 +194,10 @@ int main() {
     ImGui::NewFrame();
     
     ImGui::Begin("Use '/' to enter Menu Mode");
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::SliderFloat("Scale (UP/DOWN)", &scale, 0.01f, 1.0f);
     ImGui::SliderFloat("FOV", &fov, 45.0f, 110.0f);
+    ImGui::SliderFloat("Speed", &camera.speed, 0.1f, 10.0f);
     if (ImGui::Button("Wireframe"))
       wireframe = !wireframe;
     ImGui::End();
@@ -212,12 +219,13 @@ int main() {
 
     glUniform1f(scaleLoc, scale);
 
-    // Input mode
+    // Menu Mode
     if (!menu) {
       camera.Inputs(window, deltaTime);
     }
 
     camera.UpdateMatrix(fov, 0.1f, 100.0f);
+    camera.UpdateSpeed();
 
     // -- Cube Render
     // vao.Bind();
@@ -242,8 +250,10 @@ int main() {
 
   // Cleanup
   ImGui_ImplOpenGL3_Shutdown();
-ImGui_ImplGlfw_Shutdown();
-ImGui::DestroyContext();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
+  for (auto &chunk : chunks)
+    chunk.Delete();
   shader.Delete();
   glfwDestroyWindow(window);
   glfwTerminate();

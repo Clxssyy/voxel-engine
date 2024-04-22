@@ -39,3 +39,7 @@ void Voxel::Draw(Shader& shader, Camera& camera) {
   glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
   vao.Unbind();
 };
+
+void Voxel::Delete() {
+  vao.Delete();
+};

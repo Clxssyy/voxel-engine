@@ -80,3 +80,8 @@ void Camera::UpdateMatrix(float FOVdeg, float nearPlane, float farPlane) {
 void Camera::Matrix(Shader& shader, const char* uniform) {
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(camMatrix));
 }
+
+void Camera::UpdateSpeed() {
+    if (speed == maxSpeed) return;
+    maxSpeed = speed * 2;
+}

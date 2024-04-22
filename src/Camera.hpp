@@ -35,6 +35,8 @@ public:
 
     void Matrix(Shader& shader, const char* uniform);
 
+    void UpdateSpeed();
+
 private:
     float maxSpeed;
 };
