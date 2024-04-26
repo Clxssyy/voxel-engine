@@ -7,3 +7,9 @@ Work in progress, but currently more of a graphics engine.
 - Chunk Class
 - VBO, VAO, and EBO Class
 - Shader Class
+
+## Libraries
+- GLFW
+- GLM
+- GLAD
+- imgui
