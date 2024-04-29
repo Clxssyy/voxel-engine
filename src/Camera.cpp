@@ -60,6 +60,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime) {
 
         orientation = glm::rotate(orientation, glm::radians(-rotY), up);
 
+        glfwGetWindowSize(window, &windowWidth, &windowHeight);
         glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
