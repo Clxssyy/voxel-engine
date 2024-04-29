@@ -35,6 +35,10 @@ bool menu = false;
 // Background color
 glm::vec3 background = glm::vec3(0.2f, 0.3f, 0.3f);
 
+// Light Settings
+glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -64,7 +68,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // Window creation
-  GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Hello, world!", nullptr, nullptr);
+  GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Engine Test!", nullptr, nullptr);
   if (!window) {
     std::cerr << "Failed to create window" << std::endl;
     glfwTerminate();
@@ -102,14 +106,11 @@ int main() {
 
   // Shader initialization
   Shader shader("../shaders/vertex.vs", "../shaders/fragment.fs");
+  Shader lightShader("../shaders/light.vs", "../shaders/light.fs");
 
-  // -- Voxel Example
-  // Voxel voxel(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-  // -- Chunk Example
-  // Chunk chunk(glm::vec3(0.0f, 0.0f, 0.0f));
-  // chunk.Generate();
-  // chunk.Build();
+  // Light
+  // Voxel light(lightPos, lightColor);
+  Voxel light(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
   // -- Multiple Chunks Example
   std::vector<Chunk> chunks;
@@ -149,55 +150,6 @@ int main() {
   std::cout << "Time: " << glfwGetTime() - time << std::endl;
 
   std::vector<Voxel> voxels;
-
-  // -- Cube Example using VAO, VBO, EBO
-  // std::vector<Vertex> vertices = {
-  //   // Position                           // Color
-  //   Vertex{glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(1.0f, 0.0f, 0.0f)}, // Front Bottom left
-  //   Vertex{glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.0f, 1.0f, 0.0f)},  // Front Bottom right
-  //   Vertex{glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f)},   // Front Top right
-  //   Vertex{glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 0.0f)},  // Front Top left
-
-  //   Vertex{glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 0.0f)}, // Back Bottom left
-  //   Vertex{glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 0.0f)},  // Back Bottom right
-  //   Vertex{glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f)},   // Back Top right
-  //   Vertex{glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(1.0f, 1.0f, 0.0f)}   // Back Top left
-  // };
-
-  // std::vector<GLuint> indices = {
-  //   // Front
-  //   // Additional vertices to render lines
-  //   // 0, 1, 1, 2, 2, 0, 0, 3, 3, 2, 3,
-  //   0, 1, 2,
-  //   0, 2, 3,
-  //   // Right
-  //   1, 5, 6,
-  //   1, 6, 2,
-  //   // Back
-  //   5, 4, 7,
-  //   5, 7, 6,
-  //   // Left
-  //   4, 0, 3,
-  //   4, 3, 7,
-  //   // Bottom
-  //   4, 5, 1,
-  //   4, 1, 0,
-  //   // Top
-  //   3, 2, 6,
-  //   3, 6, 7
-  // };
-
-  // shader.Use();
-
-  // VAO vao;
-  // vao.Bind();
-  // VBO vbo(vertices);
-  // EBO ebo(indices);
-
-  // vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-  // vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-  // vao.Unbind();
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
@@ -242,6 +194,11 @@ int main() {
       Voxel voxel(voxelPosition, voxelColor);
       voxels.push_back(voxel);
     }
+    ImGui::InputFloat3("Light Position", glm::value_ptr(lightPos));
+    ImGui::ColorPicker3("Light Color", glm::value_ptr(lightColor));
+    if (ImGui::Button("Update Light")) {
+      light = Voxel(lightPos, lightColor);
+    }
     ImGui::End();
 
     // Rendering
@@ -260,6 +217,8 @@ int main() {
     camera.Matrix(shader, "camMatrix");
 
     glUniform1f(scaleLoc, scale);
+    glUniform4f(glGetUniformLocation(shader.ID, "lightColor"), lightColor.r, lightColor.g, lightColor.b, 1.0f);
+    glUniform3f(glGetUniformLocation(shader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
     // Menu Mode
     if (!menu) {
@@ -269,21 +228,18 @@ int main() {
     camera.UpdateMatrix(fov, 0.1f, 100.0f);
     camera.UpdateSpeed();
 
-    // -- Cube Render
-    // vao.Bind();
-    // glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    // vao.Unbind();
-
-    // -- Voxel Render
-    // voxel.Draw(shader, camera);
-
-    // -- Chunk Render
-    // chunk.Draw(shader, camera);
+    // Light Render
+    lightShader.Use();
+    camera.Matrix(lightShader, "camMatrix");
+    glUniform1f(glGetUniformLocation(lightShader.ID, "scale"), scale);
+    glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.r, lightColor.g, lightColor.b, 1.0f);
+    light.Draw(lightShader, camera);
 
     // -- Multiple Chunks Render
     for (auto &chunk : chunks)
       chunk.Draw(shader, camera);
 
+    // Greedy Meshing (Kind of)
     for (auto &chunk : chunks2)
       chunk.Draw(shader, camera);
 
@@ -302,7 +258,12 @@ int main() {
   ImGui::DestroyContext();
   for (auto &chunk : chunks)
     chunk.Delete();
+  for (auto &chunk : chunks2)
+    chunk.Delete();
+  for (auto &voxel : voxels)
+    voxel.Delete();
   shader.Delete();
+  lightShader.Delete();
   glfwDestroyWindow(window);
   glfwTerminate();
   return 0;

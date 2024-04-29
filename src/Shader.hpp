@@ -18,6 +18,8 @@ public:
 
     void Use();
     void Delete();
+
+    void compileErrors(unsigned int shader, const char* type);
 };
 
 #endif
