@@ -32,6 +32,9 @@ bool wireframe = false;
 // Menu mode
 bool menu = false;
 
+// Background color
+glm::vec3 background = glm::vec3(0.2f, 0.3f, 0.3f);
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
 };
@@ -121,10 +124,31 @@ int main() {
 
   int time = glfwGetTime();
   for (auto &chunk : chunks) {
+    chunk.GenerateBlocks();
+    chunk.GenerateGreedy();
+    chunk.Build();
+  }
+  std::cout << "Time: " << glfwGetTime() - time << std::endl;
+
+  std::vector<Chunk> chunks2;
+  for (int x = -4; x < 4; x++) {
+    x++;
+    for (int z = -4; z < 4; z++) {
+        z++;
+        Chunk chunk(glm::vec3(x, 0.0f, z));
+        chunks2.push_back(chunk);
+      }
+  }
+
+  time = glfwGetTime();
+  for (auto &chunk : chunks2) {
+    chunk.GenerateBlocks();
     chunk.Generate();
     chunk.Build();
   }
   std::cout << "Time: " << glfwGetTime() - time << std::endl;
+
+  std::vector<Voxel> voxels;
 
   // -- Cube Example using VAO, VBO, EBO
   // std::vector<Vertex> vertices = {
@@ -200,10 +224,28 @@ int main() {
     ImGui::SliderFloat("Speed", &camera.speed, 0.1f, 10.0f);
     if (ImGui::Button("Wireframe"))
       wireframe = !wireframe;
+    ImGui::ColorPicker3("Background", glm::value_ptr(background));
+    glm::vec3 chunkPosition;
+    ImGui::InputFloat3("Chunk Position", glm::value_ptr(chunkPosition));
+    if (ImGui::Button("Add Chunk")) {
+      Chunk chunk(chunkPosition);
+      chunk.GenerateBlocks();
+      chunk.GenerateGreedy();
+      chunk.Build();
+      chunks.push_back(chunk);
+    }
+    glm::vec3 voxelPosition;
+    ImGui::InputFloat3("Voxel Position", glm::value_ptr(voxelPosition));
+    glm::vec3 voxelColor;
+    ImGui::ColorPicker3("Voxel Color", glm::value_ptr(voxelColor));
+    if (ImGui::Button("Add Voxel")) {
+      Voxel voxel(voxelPosition, voxelColor);
+      voxels.push_back(voxel);
+    }
     ImGui::End();
 
     // Rendering
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(background.x, background.y, background.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 
@@ -241,6 +283,12 @@ int main() {
     // -- Multiple Chunks Render
     for (auto &chunk : chunks)
       chunk.Draw(shader, camera);
+
+    for (auto &chunk : chunks2)
+      chunk.Draw(shader, camera);
+
+    for (auto &voxel : voxels)
+      voxel.Draw(shader, camera);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

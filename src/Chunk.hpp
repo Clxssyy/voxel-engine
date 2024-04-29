@@ -3,8 +3,8 @@
 
 #include "Voxel.hpp"
 
-const int SIZE = 8;
-const int HEIGHT = 8;
+const int SIZE = 16;
+const int HEIGHT = 64;
 
 class Chunk {
 public:
@@ -13,10 +13,14 @@ public:
   EBO ebo;
   glm::vec3 position;
 
+  Voxel voxels[SIZE][HEIGHT][SIZE];
+
   Chunk(glm::vec3 position);
   void Draw(Shader& shader, Camera& camera);
   void Generate();
   void GenerateGreedy();
+  void Greedy(std::string face);
+  void GenerateBlocks();
   void Build();
   void Delete();
 
