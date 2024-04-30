@@ -32,7 +32,11 @@ Work in progress, but currently more of a graphics engine.
 
 ### Windows
 
+#### VSCode
+
 - Works with VSCode, should setup almost automatically
 - Build and Run
+
+#### Visual Studio
 
 - Similar setup should work with Visual Studio
